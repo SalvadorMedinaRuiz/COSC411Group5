@@ -7,7 +7,9 @@ random.seed(42)
 
 # List of 20 popular fruits
 fruits = ['Apple', 'Banana', 'Orange', 'Strawberry', 'Grapes', 'Watermelon', 'Mango', 'Pineapple', 'Peach', 'Cherry',
-          'Kiwi', 'Pear', 'Blueberry', 'Raspberry', 'Blackberry', 'Cantaloupe', 'Plum', 'Apricot', 'Pomegranate', 'Lemon']
+          'Kiwi', 'Pear', 'Blueberry', 'Raspberry', 'Blackberry', 'Cantaloupe', 'Plum', 'Apricot', 'Pomegranate',
+          'Lemon']
+
 
 # Function to generate synthetic data for each day of the week for each fruit
 def generate_fruit_sales_data(start_date, end_date):
@@ -81,12 +83,29 @@ def generate_fruit_sales_data(start_date, end_date):
                 quantity_sold = random.randint(80, 150)
                 price_per_unit = round(random.uniform(0.70, 1.50), 2)
 
-            
-            data.append([current_date, fruit_type, quantity_sold, price_per_unit])
+            discount = 0.0
+            if current_date == datetime(2022, 1, 30) or current_date == datetime(2022, 2,
+                                                                                 28) or current_date == datetime(2022,
+                                                                                                                 3,
+                                                                                                                 30) or current_date == datetime(
+                    2022, 4, 30) or current_date == datetime(2022, 5, 30) or current_date == datetime(2022, 6,
+                                                                                                      30) or current_date == datetime(
+                    2022, 7, 30) or current_date == datetime(2022, 8, 30) or current_date == datetime(2022, 9,
+                                                                                                      30) or current_date == datetime(
+                    2022, 10, 30) or current_date == datetime(2022, 11, 30) or current_date == datetime(2022, 12, 30):
+                discount = round(random.uniform(0.15, .40), 2)
+
+            if discount != 0.0:
+                price_per_unit = round(price_per_unit * discount)
+                quantity_sold += float(quantity_sold) * discount
+                quantity_sold = int(quantity_sold)
+
+            data.append([current_date, fruit_type, quantity_sold, price_per_unit, discount])
 
         current_date += timedelta(days=1)
 
     return data
+
 
 # Set start and end dates
 start_date = datetime(2022, 1, 1)
