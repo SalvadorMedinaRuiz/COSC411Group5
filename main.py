@@ -5,7 +5,9 @@ from PIL.ImageTk import PhotoImage
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
+from sklearn.linear_model import LogisticRegression
 import matplotlib.pyplot as plt
+import numpy as np
 from pandas.plotting import register_matplotlib_converters
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
@@ -98,6 +100,8 @@ class FruitPredictionApp:
             # Perform price prediction for the selected fruit based on the selected algorithm
             if selected_algorithm == "Linear Regression":
                 self.linear_regression_prediction(selected_fruit)
+            elif selected_algorithm == "Logistic Regression":
+                self.logistic_regression_prediction(selected_fruit)
         else:
             messagebox.showinfo("Invalid Fruit",
                                 "Invalid fruit selection. Please choose from the available fruits.")
@@ -124,7 +128,7 @@ class FruitPredictionApp:
         label = tk.Label(top, text="Enter the algorithm you want to use for price prediction:", font="Helvetica")
         label.pack(pady=10)
         algorithm_var = tk.StringVar(top)
-        algorithms = ["Linear Regression"]
+        algorithms = ["Linear Regression", "Logistic Regression"]
         algorithm_var.set(algorithms[0])
         algorithm_menu = tk.OptionMenu(top, algorithm_var, *algorithms)
         algorithm_menu.pack(pady=2)
@@ -179,6 +183,57 @@ class FruitPredictionApp:
         # Display the window
         output_window.mainloop()
 
+    def logistic_regression_prediction(self, selected_fruit): #Salvador Medina-Ruiz
+        #Filter the data for the selected fruit
+        fruit_data = self.df[self.df['Fruit Type'] == selected_fruit]
+
+        #Define a threshold for determining if the fruit sells more or not (this can change)
+        sales_threshold = 100
+
+        #Create a binary target variable based on the threshold
+        fruit_data['Sells More'] = (fruit_data['Quantity Sold'] > sales_threshold).astype(int)
+
+        #Extract features (X) and target variable (y) for the actual data stuff
+        X = fruit_data[['Quantity Sold', 'Price per Unit', 'discount']]
+        y = fruit_data['Sells More']
+
+        #Split data into training and testing sets
+        x_train, x_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+        #Logistic Regression stuff
+        logisticRegr = LogisticRegression()
+        logisticRegr.fit(x_train, y_train)
+        logisticRegr_predictions = logisticRegr.predict(x_test)
+
+        fig, axes = plt.subplots()
+
+        #Scatter plot for Logistic Regression
+        axes.scatter(x_test['Quantity Sold'], logisticRegr_predictions, color='blue', label='Logistic Regression Predictions')
+
+        #Plot for the sigmoid curve thingy (idk how this works ask google)
+        x_values = np.linspace(np.min(x_test['Quantity Sold']), np.max(x_test['Quantity Sold']), 100)
+        z = logisticRegr.intercept_[0] + logisticRegr.coef_[0][0] * x_values  # Linear combination of features
+        sigmoid_values = 1 / (1 + np.exp(-z))
+        axes.plot(x_values, sigmoid_values, color='red', label='Sigmoid Curve')
+
+        #Code to plot black dotted line at the mid point (0.5)
+        axes.set_title('Probability of ' + selected_fruit + ' selling more next year with Logistic Regression')
+        axes.set_xlabel('Quantity Sold')
+        axes.set_ylabel('Sells More')
+        axes.axhline(y=0.5, color='black', linestyle='--')
+
+        axes.legend()
+
+        #Create a new window for displaying the plots
+        output_window = tk.Toplevel(self.root)
+        output_window.title("Probability of fruit selling more next year")
+
+        #Embed the Matplotlib plot in the Tkinter window
+        canvas = FigureCanvasTkAgg(fig, master=output_window)
+        canvas.get_tk_widget().pack()
+
+        #Display the window
+        output_window.mainloop()
 
 if __name__ == "__main__":
     root = tk.Tk()
