@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from pandas.plotting import register_matplotlib_converters
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-
+import seaborn as sns
 register_matplotlib_converters()
 
 
@@ -102,6 +102,8 @@ class FruitPredictionApp:
                 self.linear_regression_prediction(selected_fruit)
             elif selected_algorithm == "Logistic Regression":
                 self.logistic_regression_prediction(selected_fruit)
+            elif selected_algorithm == "Time Series":
+                self.time_series(selected_fruit)
         else:
             messagebox.showinfo("Invalid Fruit",
                                 "Invalid fruit selection. Please choose from the available fruits.")
@@ -128,7 +130,7 @@ class FruitPredictionApp:
         label = tk.Label(top, text="Enter the algorithm you want to use for price prediction:", font="Helvetica")
         label.pack(pady=10)
         algorithm_var = tk.StringVar(top)
-        algorithms = ["Linear Regression", "Logistic Regression"]
+        algorithms = ["Linear Regression", "Logistic Regression", "Time Series"]
         algorithm_var.set(algorithms[0])
         algorithm_menu = tk.OptionMenu(top, algorithm_var, *algorithms)
         algorithm_menu.pack(pady=2)
@@ -234,6 +236,18 @@ class FruitPredictionApp:
 
         #Display the window
         output_window.mainloop()
+    def time_series(self, selected_fruit):#Uzair Mumtaz
+        fruit_data = self.df[self.df['Fruit Type'] == selected_fruit]
+
+        df = pd.read_csv("fruit_sales_data.csv")
+        df['Date'] = pd.to_datetime(df['Date'], format='mixed')
+        df.index = df['Date']
+        del df['Date']
+
+        plt.ylabel("Price")
+        sns.lineplot(df)
+        plt.show()
+
 
 if __name__ == "__main__":
     root = tk.Tk()
