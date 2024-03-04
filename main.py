@@ -85,6 +85,50 @@ class FruitPredictionApp:
         if self.df is None:
             tk.messagebox.showinfo("Data Not Loaded", "Please load data before viewing general statistics.")
             return
+        
+        # Create a new window for displaying statistics
+        stats_window = tk.Toplevel(self.root)
+        stats_window.title("Statistics for All Items")
+
+        df1 = self.df.copy()
+
+        # Calculate profit for each fruit
+        df1['Profit'] = df1['Quantity Sold'] * df1['Price per Unit']
+
+        # Create a single figure for all plots
+        fig, (pie_ax, bar_ax, table_ax) = plt.subplots(1, 3, figsize=(20, 8))
+
+        # Calculate total profit, and total quantity sold for each fruit
+        fruit_profit = df1.groupby('Fruit Type')['Profit'].sum()
+        total_quantity_sold_by_fruit = df1.groupby('Fruit Type')['Quantity Sold'].sum().reset_index()
+
+        # Identify fruits with less than 3% profit
+        low_profit_fruits = fruit_profit[fruit_profit / fruit_profit.sum() < 0.03].index
+
+        # Replace those fruits with 'Others'
+        df1.loc[df1['Fruit Type'].isin(low_profit_fruits), 'Fruit Type'] = 'Others'
+
+        # Plot pie chart for distribution of fruit types based on profit
+        df1.groupby('Fruit Type')['Profit'].sum().plot.pie(autopct='%1.1f%%', ax=pie_ax)
+        pie_ax.set_title('Distribution of Fruit Types based on Sales')
+        pie_ax.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle
+
+        # Plot bar chart for Quantity Sold by Fruit Type using the aggregated data
+        sns.barplot(x='Fruit Type', y='Quantity Sold', data=total_quantity_sold_by_fruit, ax=bar_ax)
+        bar_ax.set_title('Quantity Sold by Fruit Type')
+        bar_ax.set_xticklabels(bar_ax.get_xticklabels(), rotation=45, ha='right')
+
+        # Display profit statistics in a table
+        fruit_profit_stats = df1.groupby('Fruit Type')['Profit'].sum().reset_index()
+        fruit_profit_stats.columns = ['Fruit Type', 'Sales']
+        table_ax.axis('off')  # Turn off axis for the table
+        table_ax.table(cellText=fruit_profit_stats.values, colLabels=fruit_profit_stats.columns, cellLoc='center',
+                       loc='center')
+
+        # Display the canvas in stats_window
+        canvas = FigureCanvasTkAgg(fig, master=stats_window)
+        canvas.get_tk_widget().pack(side=tk.LEFT, padx=10)
+        canvas.draw()
 
     def price_prediction(self):
         # Check if data is loaded
