@@ -11,6 +11,7 @@ import numpy as np
 from pandas.plotting import register_matplotlib_converters
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import seaborn as sns
+from sklearn.ensemble import RandomForestRegressor
 register_matplotlib_converters()
 
 
@@ -148,6 +149,8 @@ class FruitPredictionApp:
                 self.logistic_regression_prediction(selected_fruit)
             elif selected_algorithm == "Time Series":
                 self.time_series(selected_fruit)
+            elif selected_algorithm == "Random Forest":
+                self.random_forest_regression(selected_fruit)
         else:
             messagebox.showinfo("Invalid Fruit",
                                 "Invalid fruit selection. Please choose from the available fruits.")
@@ -174,7 +177,7 @@ class FruitPredictionApp:
         label = tk.Label(top, text="Enter the algorithm you want to use for price prediction:", font="Helvetica")
         label.pack(pady=10)
         algorithm_var = tk.StringVar(top)
-        algorithms = ["Linear Regression", "Logistic Regression", "Time Series"]
+        algorithms = ["Linear Regression", "Logistic Regression", "Time Series", "Random Forest"]
         algorithm_var.set(algorithms[0])
         algorithm_menu = tk.OptionMenu(top, algorithm_var, *algorithms)
         algorithm_menu.pack(pady=2)
@@ -291,6 +294,43 @@ class FruitPredictionApp:
         plt.ylabel("Price")
         sns.lineplot(df)
         plt.show()
+
+    def random_forest_regression(self, selected_fruit): # Nathan
+        # Filter the data for the selected fruit
+        fruit_data = self.df[self.df['Fruit Type'] == selected_fruit]
+
+        # Extract features (X) and target variable (y)
+        X = fruit_data[['Date', 'Quantity Sold']]
+        y = fruit_data['Price per Unit']
+
+        # Split data into training and testing sets
+        x_train, x_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+        # Random Forest Regression
+        rf_model = RandomForestRegressor(n_estimators=100, random_state=42)
+        rf_model.fit(x_train[['Quantity Sold']], y_train)
+        rf_predictions = rf_model.predict(x_test[['Quantity Sold']])
+
+        fig, axes = plt.subplots()
+
+        # Scatter plot for Random Forest Regression
+        axes.scatter(x_test['Quantity Sold'], y_test, color='black', label='Actual Prices')
+        axes.scatter(x_test['Quantity Sold'], rf_predictions, color='green', label='Random Forest Predictions')
+        axes.set_title('Random Forest Regression')
+        axes.set_xlabel('Quantity Sold')
+        axes.set_ylabel('Price per Unit')
+        axes.legend()
+
+        # Create a new window for displaying the plots
+        output_window = tk.Toplevel(self.root)
+        output_window.title("Price Prediction Output")
+
+        # Embed the Matplotlib plot in the Tkinter window
+        canvas = FigureCanvasTkAgg(fig, master=output_window)
+        canvas.get_tk_widget().pack()
+
+        # Display the window
+        output_window.mainloop()
 
 
 if __name__ == "__main__":
