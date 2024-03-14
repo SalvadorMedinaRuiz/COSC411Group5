@@ -331,7 +331,44 @@ class FruitPredictionApp:
 
         # Display the window
         output_window.mainloop()
+        
+    def decision_tree_regression(self, selected_fruit): #Nick Fiori
 
+        # Filter the data for the selected fruit
+        fruit_data = self.df[self.df['Fruit Type'] == selected_fruit]
+
+        # Extract features (X) and target variable (y)
+        X = fruit_data[['Quantity Sold']]
+        y = fruit_data['Price per Unit']
+
+        # Split data into training and testing sets
+        x_train, x_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+        # Decision Tree Regression
+        dt_model = DecisionTreeRegressor(random_state=42)
+        dt_model.fit(x_train, y_train)
+        dt_predictions = dt_model.predict(x_test)
+
+        fig, axes = plt.subplots()
+
+        # Scatter plot for Decision Tree Regression
+        axes.scatter(x_test, y_test, color='black', label='Actual Prices')
+        axes.scatter(x_test, dt_predictions, color='red', label='Decision Tree Predictions')
+        axes.set_title('Decision Tree Regression')
+        axes.set_xlabel('Quantity Sold')
+        axes.set_ylabel('Price per Unit')
+        axes.legend()
+
+        # Create a new window for displaying the plots
+        output_window = tk.Toplevel(self.root)
+        output_window.title("Price Prediction Output")
+
+        # Embed the Matplotlib plot in the Tkinter window
+        canvas = FigureCanvasTkAgg(fig, master=output_window)
+        canvas.get_tk_widget().pack()
+
+        # Display the window
+        output_window.mainloop()
 
 if __name__ == "__main__":
     root = tk.Tk()
