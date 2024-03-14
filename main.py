@@ -12,6 +12,7 @@ from pandas.plotting import register_matplotlib_converters
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import seaborn as sns
 from sklearn.ensemble import RandomForestRegressor
+from sklearn.tree import DecisionTreeRegressor
 register_matplotlib_converters()
 
 
