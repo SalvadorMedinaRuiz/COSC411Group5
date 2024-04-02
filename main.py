@@ -152,6 +152,8 @@ class FruitPredictionApp:
                 self.time_series(selected_fruit)
             elif selected_algorithm == "Random Forest":
                 self.random_forest_regression(selected_fruit)
+            elif selected_algorithm == "Decision Tree":
+                self.decision_tree_regression(selected_fruit)
         else:
             messagebox.showinfo("Invalid Fruit",
                                 "Invalid fruit selection. Please choose from the available fruits.")
@@ -178,7 +180,7 @@ class FruitPredictionApp:
         label = tk.Label(top, text="Enter the algorithm you want to use for price prediction:", font="Helvetica")
         label.pack(pady=10)
         algorithm_var = tk.StringVar(top)
-        algorithms = ["Linear Regression", "Logistic Regression", "Time Series", "Random Forest"]
+        algorithms = ["Linear Regression", "Logistic Regression", "Time Series", "Random Forest", "Decision Tree"]
         algorithm_var.set(algorithms[0])
         algorithm_menu = tk.OptionMenu(top, algorithm_var, *algorithms)
         algorithm_menu.pack(pady=2)
