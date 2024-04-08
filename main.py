@@ -97,6 +97,33 @@ class FruitPredictionApp:
             tk.messagebox.showinfo("Data Not Loaded", "Please load data before using this fuctunality.")
             return
 
+        # Create a top-level window to display the data
+        data_window = tk.Toplevel(self.root)
+        data_window.title("Display Data")
+        data_window.configure(bg='#283747')
+
+        # Create a treeview widget
+        tree = ttk.Treeview(data_window)
+
+        # Define the column headings
+        tree['columns'] = list(self.df.columns)
+        tree.column("#0", width=0, stretch=tk.NO)
+        for col in self.df.columns:
+            tree.column(col, anchor=tk.CENTER, width=80)
+            tree.heading(col, text=col, anchor=tk.CENTER)
+
+        # Insert the data into the treeview
+        for index, row in self.df.iterrows():
+            tree.insert("", index, text="", values=list(row))
+
+        # Pack the treeview into the window
+        tree.pack(side=tk.TOP, fill=tk.X)
+
+        # Add a scrollbar
+        scrollbar = ttk.Scrollbar(data_window, orient=tk.VERTICAL, command=tree.yview)
+        tree.configure(yscroll=scrollbar.set)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
     def stats_for_all_items(self):
         if self.df is None:
             tk.messagebox.showinfo("Data Not Loaded", "Please load data before viewing general statistics.")
@@ -301,9 +328,8 @@ class FruitPredictionApp:
         #Display the window
         output_window.mainloop()
     def time_series(self, selected_fruit):#Uzair Mumtaz
-        fruit_data = self.df[self.df['Fruit Type'] == selected_fruit]
 
-        df = pd.read_csv("fruit_sales_data.csv")
+        df = self.df[self.df['Fruit Type'] == selected_fruit]
         df['Date'] = pd.to_datetime(df['Date'], format='mixed')
         df.index = df['Date']
         del df['Date']
