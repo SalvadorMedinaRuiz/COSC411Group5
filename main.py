@@ -3,6 +3,7 @@ import tkinter as tk
 from tkinter import messagebox, filedialog, ttk
 from PIL.ImageTk import PhotoImage
 import pandas as pd
+from matplotlib.figure import Figure
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 from sklearn.linear_model import LogisticRegression
@@ -329,14 +330,37 @@ class FruitPredictionApp:
         output_window.mainloop()
     def time_series(self, selected_fruit):#Uzair Mumtaz
 
-        df = self.df[self.df['Fruit Type'] == selected_fruit]
-        df['Date'] = pd.to_datetime(df['Date'], format='mixed')
-        df.index = df['Date']
-        del df['Date']
+        # Filter the data for the selected fruit
+        fruit_data = self.df[self.df['Fruit Type'] == selected_fruit].copy()
 
-        plt.ylabel("Price")
-        sns.lineplot(df)
-        plt.show()
+        # Ensure 'Date' is in datetime format and set as index
+        fruit_data['Date'] = pd.to_datetime(fruit_data['Date'])
+        fruit_data.sort_values('Date', inplace=True)  # Sorting might be necessary
+        fruit_data.set_index('Date', inplace=True)
+
+        # Create a figure for the plot
+        fig = Figure(figsize=(6, 4), dpi=100)
+        ax = fig.add_subplot(111)
+
+        # Plot the data using Seaborn
+        sns.lineplot(data=fruit_data, x=fruit_data.index, y='Price per Unit', ax=ax)
+
+        # Set the plot title and labels
+        ax.set_title(f'Price Trends for {selected_fruit}')
+        ax.set_xlabel('Date')
+        ax.set_ylabel('Price per Unit')
+
+        # Create a new window in Tkinter for displaying the plot
+        output_window = tk.Toplevel(self.root)
+        output_window.title("Time Series Analysis")
+
+        # Embed the Matplotlib figure into the Tkinter window
+        canvas = FigureCanvasTkAgg(fig, master=output_window)
+        canvas.draw()
+        canvas.get_tk_widget().pack()
+
+        # Display the window
+        output_window.mainloop()
 
     def random_forest_regression(self, selected_fruit): # Nathan
         # Filter the data for the selected fruit
