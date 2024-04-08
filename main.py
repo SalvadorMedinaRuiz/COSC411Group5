@@ -331,24 +331,25 @@ class FruitPredictionApp:
     def time_series(self, selected_fruit):#Uzair Mumtaz
 
         # Filter the data for the selected fruit
-        fruit_data = self.df[self.df['Fruit Type'] == selected_fruit].copy()
+        fruit_data = self.df[(self.df['Fruit Type'] == selected_fruit) & (self.df['Price per Unit'] != 0)].copy()
 
-        # Ensure 'Date' is in datetime format and set as index
+        # Ensure 'Date' is in datetime format and sort by it
         fruit_data['Date'] = pd.to_datetime(fruit_data['Date'])
-        fruit_data.sort_values('Date', inplace=True)  # Sorting might be necessary
-        fruit_data.set_index('Date', inplace=True)
+        fruit_data.sort_values('Date', inplace=True)
+        
+        # Create a figure and axis for the plot
+        fig, ax = plt.subplots()
 
-        # Create a figure for the plot
-        fig = Figure(figsize=(6, 4), dpi=100)
-        ax = fig.add_subplot(111)
+        # Creating the line plot
+        sns.lineplot(x=fruit_data['Date'], y=fruit_data['Price per Unit'], ax=ax)
 
-        # Plot the data using Seaborn
-        sns.lineplot(data=fruit_data, x=fruit_data.index, y='Price per Unit', ax=ax)
-
-        # Set the plot title and labels
+        # Setting the title and labels
         ax.set_title(f'Price Trends for {selected_fruit}')
         ax.set_xlabel('Date')
         ax.set_ylabel('Price per Unit')
+
+        # Improving the date labels readability on the x-axis
+        fig.autofmt_xdate()
 
         # Create a new window in Tkinter for displaying the plot
         output_window = tk.Toplevel(self.root)
