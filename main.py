@@ -22,9 +22,23 @@ class FruitPredictionApp:
         self.root.title("Fruit Machine Learning App")
         self.df = None  # Initialize DataFrame
         self.fruits = ""  # Initialize available fruits string
+        style = ttk.Style()
+        style.theme_use('clam')  # Using 'clam' for its modern appearance
 
         # Get the path to the image file
         image_path = os.path.abspath("fruit.jpg")
+
+
+        # Label style with light text that will stand out on the dark background
+        style.configure('TLabel', foreground='white',font=("Helvetica", 25, "bold"), background="#36454F")
+
+        # Button style with a contrasting color and hover effects
+        style.configure('TButton', font=('Helvetica', 16, 'bold'), foreground='white', background="#283747",
+                        borderwidth=1)
+        style.map('TButton',
+                  foreground=[('pressed', 'white'), ('active', 'white')],
+                  background=[('pressed', 'black'), ('active', '#3E5F7B')],
+                  relief=[('pressed', 'sunken'), ('!pressed', 'raised')])
 
         # Load the image as an instance variable
         self.bg = PhotoImage(file=image_path)
@@ -32,7 +46,7 @@ class FruitPredictionApp:
         label_background.place(x=0, y=0, relwidth=1, relheight=1)
 
         # Welcome Message
-        welcome_label = tk.Label(root, text="Welcome to the fruit price prediction App", font=("Helvetica", 16))
+        welcome_label = ttk.Label(root, text="Welcome to the fruit price prediction App", style="TLabel")
         welcome_label.pack(pady=20)
 
         # Main Menu
@@ -47,18 +61,18 @@ class FruitPredictionApp:
         file_menu.add_command(label="Exit", command=self.root.destroy)
 
         # Fruit Recognition Button
-        display_data_button = tk.Button(root, text="Display data", command=self.display_data,
-                                        font=("Helvetica", 12))
+        display_data_button = ttk.Button(root, text="Display data", command=self.display_data,
+                                         style="TButton")
         display_data_button.pack(pady=20)
 
         # Fruit Recognition Button
-        display_general_stats_button = tk.Button(root, text="Display General Stats", command=self.stats_for_all_items,
-                                               font=("Helvetica", 12))
+        display_general_stats_button = ttk.Button(root, text="Display General Stats", command=self.stats_for_all_items,
+                                                style="TButton")
         display_general_stats_button.pack(pady=20)
 
         # Price Prediction Button
-        price_prediction_button = tk.Button(root, text="Price Prediction", command=self.price_prediction,
-                                            font=("Helvetica", 12))
+        price_prediction_button = ttk.Button(root, text="Price Prediction", command=self.price_prediction,
+                                             style="TButton")
         price_prediction_button.pack(pady=20)
 
     def load_data(self):
